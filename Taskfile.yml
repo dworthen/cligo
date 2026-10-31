@@ -1,0 +1,30 @@
+version: "3"
+
+dotenv:
+  - .env
+
+tasks:
+  tidy-go:
+    internal: true
+    cmds:
+      - go mod tidy
+
+  tidy:
+    deps:
+      - tidy-go
+
+  format-check:
+    cmds:
+      - goimports -e -l .
+
+  format:
+    cmds:
+      - goimports -w .
+
+  lint:
+    cmds:
+      - golangci-lint run
+
+  run:
+    cmds:
+      - go run ./internal/testingcli/main.go {{.CLI_ARGS}}
