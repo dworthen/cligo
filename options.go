@@ -11,6 +11,12 @@ type options struct {
 	EnvFiles    []string
 }
 
+func WithCliArgs(args ...string) func(*options) {
+	return func(o *options) {
+		o.Args = args
+	}
+}
+
 func WithVersion(version string) func(*options) {
 	return func(o *options) {
 		o.Version = version

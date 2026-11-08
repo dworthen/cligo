@@ -169,24 +169,21 @@ Each subcommand has its own flags type, arguments, and help output. The root com
 
 ## Running commands
 
-| Function                                    | Description                                                                 |
-| ------------------------------------------- | --------------------------------------------------------------------------- |
-| `RunCommand(cmd)`                           | Run with default options. Returns the command that was resolved (root or subcommand) and any error. |
-| `RunCommandWithOptions(cmd, opts)`          | Same as above with custom options.                                          |
-| `MustRunCommand(cmd)`                       | Run with default options. If an error occurs, print it with the command's usage to stderr and exit with status 1. |
-| `MustRunCommandWithOptions(cmd, opts)`      | Same as above with custom options.                                          |
+| Function                       | Description                                                                 |
+| ------------------------------ | --------------------------------------------------------------------------- |
+| `RunCommand(cmd, opts...)`     | Run the command. Returns the command that was resolved (root or subcommand) and any error. |
+| `MustRunCommand(cmd, opts...)` | Run the command. If an error occurs, print it with the command's usage to stderr and exit with status 1. |
 
 ### Options
 
-Create options with `NewOptions` and functional options:
+Both functions accept optional functional options:
 
 ```go
-opts := cligo.NewOptions(
+cligo.MustRunCommand(cmd,
 	cligo.WithVersion("1.2.3"),
 	cligo.WithEnvFiles(".env", ".env.local"),
 	cligo.WithStrict(true),
 )
-cligo.MustRunCommandWithOptions(cmd, opts)
 ```
 
 | Option                     | Default           | Description                                                      |
@@ -196,13 +193,12 @@ cligo.MustRunCommandWithOptions(cmd, opts)
 | `WithHelpFlag(flags)`      | `"--help, -h"`    | Comma-separated flags that print help. `""` disables it.         |
 | `WithStrict(bool)`         | `true`            | Error on unknown flags and on extra positional arguments.        |
 | `WithEnvFiles(paths...)`   | none              | Dotenv files to load before parsing.                             |
+| `WithCliArgs(args...)`     | `os.Args[1:]`     | Command-line arguments to parse.                                 |
 
-Arguments default to `os.Args[1:]`. To run a command against a custom argument list, such as in tests, set the `Args` field on the options value:
+Use `WithCliArgs` to run a command against a custom argument list, such as in tests:
 
 ```go
-opts := cligo.NewOptions()
-opts.Args = []string{"list", "--verbose"}
-_, err := cligo.RunCommandWithOptions(rootCmd, opts)
+_, err := cligo.RunCommand(rootCmd, cligo.WithCliArgs("list", "--verbose"))
 ```
 
 ### Env files
