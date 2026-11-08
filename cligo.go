@@ -13,11 +13,13 @@ import (
 var once sync.Once
 var envErr error
 
-func RunCommand(cmd Runnable) (Runnable, error) {
-	return RunCommandWithOptions(cmd, NewOptions())
+func RunCommand(cmd Runnable, options ...func(*options)) (Runnable, error) {
+	opts := NewOptions(options...)
+
+	return runCommandWithOptions(cmd, opts)
 }
 
-func RunCommandWithOptions(cmd Runnable, opts options) (Runnable, error) {
+func runCommandWithOptions(cmd Runnable, opts options) (Runnable, error) {
 
 	once.Do(func() {
 		for _, envFile := range opts.EnvFiles {
@@ -50,7 +52,7 @@ func RunCommandWithOptions(cmd Runnable, opts options) (Runnable, error) {
 		for _, subCmd := range subCommands {
 			if subCmd.Name() == arg || slices.Contains(subCmd.Aliases(), arg) {
 				opts.Args = opts.Args[index+1:]
-				return RunCommandWithOptions(subCmd, opts)
+				return runCommandWithOptions(subCmd, opts)
 			}
 		}
 	}
@@ -67,17 +69,11 @@ func RunCommandWithOptions(cmd Runnable, opts options) (Runnable, error) {
 	return cmd, cmd.Execute(opts.Args, opts)
 }
 
-func MustRunCommand(cmd Runnable) {
-	actualCmd, err := RunCommand(cmd)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error running %s: %s\n", actualCmd.Name(), err)
-		fmt.Fprintf(os.Stderr, "%s\n", actualCmd.Usage(NewOptions()))
-		os.Exit(1)
-	}
-}
+func MustRunCommand(cmd Runnable, options ...func(*options)) {
 
-func MustRunCommandWithOptions(cmd Runnable, opts options) {
-	actualCmd, err := RunCommandWithOptions(cmd, opts)
+	opts := NewOptions(options...)
+
+	actualCmd, err := runCommandWithOptions(cmd, opts)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error running %s: %s\n", actualCmd.Name(), err)
 		fmt.Fprintf(os.Stderr, "%s\n", actualCmd.Usage(opts))

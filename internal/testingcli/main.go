@@ -46,5 +46,5 @@ func main() {
 		return
 	}
 
-	cligo.MustRunCommandWithOptions(cmd, cligo.NewOptions(cligo.WithStrict(true), cligo.WithEnvFiles(".env")))
+	cligo.MustRunCommand(cmd, cligo.WithStrict(true), cligo.WithEnvFiles(".env"))
 }
