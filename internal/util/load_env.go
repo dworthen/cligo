@@ -34,9 +34,12 @@ func LoadEnv(filePath string) error {
 		if len(parts) != 2 {
 			return fmt.Errorf("invalid line in dotenv file: %s", line)
 		}
+		placeholder := "__DOLLAR__"
 		key := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[1])
+		value = strings.ReplaceAll(value, "\\$", placeholder)
 		value = os.ExpandEnv(value)
+		value = strings.ReplaceAll(value, placeholder, "$")
 		if err := os.Setenv(key, value); err != nil {
 			return fmt.Errorf("failed to set environment variable %s: %w", key, err)
 		}
