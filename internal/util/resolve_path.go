@@ -3,6 +3,7 @@ package util
 import (
 	"os"
 	"path"
+	"path/filepath"
 	"slices"
 	"strings"
 )
@@ -32,7 +33,7 @@ func ResolvePath(elem ...string) (string, error) {
 
 	startIndex := 0
 	for ind, v := range slices.Backward(paths) {
-		if path.IsAbs(v) {
+		if path.IsAbs(v) || filepath.IsAbs(v) {
 			startIndex = ind
 			break
 		}
